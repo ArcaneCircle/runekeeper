@@ -162,5 +162,8 @@ cython_debug/
 
 data/
 node_modules/
+dist
+dist-xdc
 rune-data/
 .DS_Store
+*~

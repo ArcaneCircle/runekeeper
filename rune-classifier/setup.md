@@ -1,4 +1,5 @@
 Setup and train
+
 ```
 python --version # 3.10.12
 python -m venv venv
