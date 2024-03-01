@@ -10,6 +10,7 @@ import SpellCaster from './spell-caster';
 import Wizard from './wizard';
 import Audio from './audio';
 import * as Save from './game-save.js';
+import SpellHint from './spell-hint.js';
 
 function initialize() {
     add(GameArena());
@@ -17,6 +18,8 @@ function initialize() {
     add(RuneStone());
     add(SpellCaster());
     add(EnemySpawner());
+    add(SpellHint(0, '#EC8'))
+    add(SpellHint(1, '#8AA'))
 
     function placePowerUp() {
         const powerType = Math.floor(Math.random() * 3);

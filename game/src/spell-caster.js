@@ -1,9 +1,10 @@
 import { emit } from './bus';
 import { canvas, renderLines, retainTransform } from './canvas';
 import { BLACK, DARK_GRAY, GRAY } from './color';
-import { SIGIL_DRAWN } from './events';
+import { SIGIL_DRAWN, AXIS_WAIT } from './events';
 import { classify } from './rune-model';
 import { COLOR_MAP } from './runes';
+import { add } from './engine.js'
 
 function SpellCaster() {    
     const scaledCanvas = document.createElement("canvas");
@@ -32,6 +33,12 @@ function SpellCaster() {
     let timeSinceSelect = 0;
     let drawingOnLeft = false;
     let inDrawArea = false;
+    let waitAxisSelected = false;
+    const buttonUnit = 80;
+    /*  ^
+     *  v
+     * <>
+     */
 
     function touchifyEvent(evt) {
         const touches = evt.changedTouches;
@@ -41,13 +48,33 @@ function SpellCaster() {
         }
     }
 
+    function isAxisButton(evt) {
+        if (!waitAxisSelected) return -1
+
+        waitAxisSelected = false
+        const r = canvas.width - evt.clientX
+        const u = canvas.height - evt.clientY
+        const x = buttonUnit
+        let out = false
+        if (r < x && x < u && u < 3*x) drawingOnLeft = true
+        else if (r < 2*x && u < x) drawingOnLeft = false
+        else out = true
+        if (out) return -2
+        return drawingOnLeft ? 0 : 1
+    }
     function onMouseDown(evt) {
         touchifyEvent(evt);
+        {
+            const axis = isAxisButton(evt)
+            if (axis >= 0) {
+                emit(SIGIL_DRAWN, [selectedClass, axis])
+                return
+            }
+        }
         selectedClass = -1;
         if (evt.clientY < canvas.height * 0.65 - 5) {
             return;
         }
-        drawingOnLeft = evt.clientX < canvas.width / 2;
         lines.length = 0;
         lines.push([evt.clientX, evt.clientY]);
         isDrawing = true;
@@ -55,21 +82,12 @@ function SpellCaster() {
 
     function onMouseMove(evt) {
         touchifyEvent(evt);
-        if (!isDrawing) {
-            drawingOnLeft = evt.clientX < canvas.width / 2;
-        }
         inDrawArea = evt.clientY > canvas.height * 0.65 - 5;
         if (isDrawing && lines.length > 0) {
             const latestPt = lines[lines.length - 1];
             let dx = evt.clientX - latestPt[0];
             let dy = evt.clientY - latestPt[1];
             if (!inDrawArea) {
-                return;
-            }
-            if (drawingOnLeft && evt.clientX > canvas.width / 2) {
-                return;
-            }
-            if (!drawingOnLeft && evt.clientX < canvas.width / 2) {
                 return;
             }
             // If dragged far enough, register new point
@@ -92,7 +110,8 @@ function SpellCaster() {
         timeSinceSelect = 0;
         lines.length = 0;
         isDrawing = false;
-        emit(SIGIL_DRAWN, [selectedClass, drawingOnLeft ? 0 : 1]);
+        waitAxisSelected = true;
+        if (selectedClass > 0) emit(AXIS_WAIT, selectedClass)
     }
 
     window.addEventListener('mousedown', onMouseDown);
@@ -194,10 +213,23 @@ function SpellCaster() {
             ctx.fillStyle = DARK_GRAY;
             ctx.fillRect(0, canvas.height * 0.65, canvas.width, canvas.height * 0.36);
             ctx.lineWidth = 10;
-            ctx.strokeStyle = '#3d3d3d';
-            renderLines(ctx, [[canvas.width / 2, canvas.height * 0.65], [canvas.width / 2, canvas.height]]);
+            // ctx.strokeStyle = '#3d3d3d';
+            // renderLines(ctx, [[canvas.width / 2, canvas.height * 0.65], [canvas.width / 2, canvas.height]]);
             ctx.strokeStyle = BLACK;
             renderLines(ctx, [[0, canvas.height * 0.65], [canvas.width, canvas.height * 0.65]]);
+
+            {
+                // axis button
+                const x = buttonUnit
+                const h = canvas.height
+                const w = canvas.width
+
+                ctx.fillStyle = '#664'
+                ctx.fillRect(w-x, h-3*x, x, 2*x)
+
+                ctx.fillStyle = '#466'
+                ctx.fillRect(w-2*x, h-x, 2*x, x)
+            }
 
             ctx.lineWidth = 6;
             let h = canvas.height * 0.65 + 30;

@@ -7,7 +7,7 @@ import PulseSFX from "./pulse-sfx";
 import { BOLT_RUNE, CARET_RUNE, CIRCLE_RUNE, HOURGLASS_RUNE, TRIANGLE_RUNE, WAVE_RUNE } from "./runes";
 import { spotHasEnemy, spotOccupied } from "./sensor";
 
-const ORDER_REMAP = { 5:0, 1:1, 3:2, 2:3, 4:4, 6:5 };
+export const ORDER_REMAP = { 5:0, 1:1, 3:2, 2:3, 4:4, 6:5 };
 const runeOrder = [
     CARET_RUNE,
     CIRCLE_RUNE,
@@ -36,8 +36,8 @@ function RuneStone() {
     const MOVING = 1;
     let state = IDLE;
     let timeInState = 0;
-    let targetCX = 0;
-    let targetCY = 0;
+    let targetCX = cx;
+    let targetCY = cy;
     let bonkCX = -1;
     let bonkCY = -1;
     let originCX = 0;
@@ -53,24 +53,14 @@ function RuneStone() {
                 ctx.lineWidth = 4;
                 const SIZE = 80;
                 const highlight = (caster.getIsDrawing() || caster.getInDrawArea());
-                if (highlight && caster.getDrawingOnLeft()) {
-                    ctx.strokeStyle = WHITE;
-                } else {
-                    ctx.strokeStyle = '#fbcda1';
-                    // ctx.strokeStyle = '#eea';
-                }
+                ctx.strokeStyle = '#fbcda1';
                 retainTransform(() => {
                     ctx.translate(-SIZE / 2, SIZE / 2 + SIZE * i);
                     ctx.scale(1.5, 1.5);
                     renderLines(ctx, runeOrder[i]);
                 });
                 
-                if (highlight && !caster.getDrawingOnLeft()) {
-                    ctx.strokeStyle = WHITE;
-                } else {
-                    ctx.strokeStyle = '#fbcda1';
-                    // ctx.strokeStyle = '#aee';
-                }
+                ctx.strokeStyle = '#fbcda1';
                 retainTransform(() => {
                     ctx.translate(SIZE / 2 + SIZE * i, SIZE * 6.5);
                     ctx.scale(1.5, 1.5);
@@ -262,7 +252,7 @@ function RuneStone() {
         update,
         render,
         order: 30 + cy * 0.02,
-        tags: ['obstacle'],
+        tags: ['obstacle', 'rune-stone'],
         getX: () => targetCX,
         getY: () => targetCY,
     }
