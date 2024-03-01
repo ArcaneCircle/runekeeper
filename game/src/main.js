@@ -9,6 +9,7 @@ import { spotOccupied } from './sensor';
 import SpellCaster from './spell-caster';
 import Wizard from './wizard';
 import Audio from './audio';
+import * as Save from './game-save.js';
 
 function initialize() {
     add(GameArena());
@@ -38,5 +39,7 @@ function initialize() {
     bus.on(POWERUP_ACQUIRED, placePowerUp);
 
     Audio().init();
+
+    Save.initialize();
 }
 initialize();

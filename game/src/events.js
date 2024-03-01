@@ -11,3 +11,4 @@ export const ENEMY_TAKE_DAMAGE = 9;
 export const ENEMY_MOVE = 10;
 export const SCORED = 11;
 export const GAME_OVER = 12;
+export const SHOW_MESSAGE = 13;

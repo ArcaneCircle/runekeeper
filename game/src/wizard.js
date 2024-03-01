@@ -5,9 +5,11 @@ import { add } from "./engine";
 import { ENEMY_DAMAGE, GAME_OVER } from "./events";
 import PulseSFX from "./pulse-sfx";
 
+export const HP_INIT = 10;
+
 function Wizard() {
     let anim = 0;
-    let hp = 10;
+    let hp = HP_INIT;
     let dead = false;
 
     function render(ctx) {
@@ -89,6 +91,8 @@ function Wizard() {
     return {
         update,
         render,
+        tags: ['wizard'],
+        getHp: () => hp,
     }
 }
 

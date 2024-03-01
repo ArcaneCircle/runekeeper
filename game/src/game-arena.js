@@ -1,12 +1,13 @@
 import { on } from "./bus";
 import { canvas, renderLines, retainTransform } from "./canvas";
 import { LIGHT_BROWN, TAN } from "./color";
-import { GAME_OVER, RUNESTONE_MOVE, SCORED } from "./events";
+import { GAME_OVER, RUNESTONE_MOVE, SCORED, SHOW_MESSAGE } from "./events";
 
 function GameArena() {
     let score = 0;
     let gameOver = false;
     let showInstruction = true;
+    let message = null;
 
     function render(ctx) {
         retainTransform(() => {
@@ -28,7 +29,12 @@ function GameArena() {
         ctx.stroke();
 
         // draw score
-        if (showInstruction) {
+        if (message) {
+            ctx.fillStyle = "#222";
+            ctx.textAlign = "center";
+            ctx.font = `bold 30px arial`;
+            ctx.fillText(message, SIZE * 2.5, -SIZE * 0.5);
+        } else if (showInstruction) {
             ctx.fillStyle = "#222";
             ctx.textAlign = "center";
             ctx.font = `bold 30px arial`;
@@ -58,15 +64,21 @@ function GameArena() {
     
     function onMove() {
         showInstruction = false;
+        message = null;
     }
 
     function onGG() {
         gameOver = true;
     }
 
+    function onMessage(m) {
+        message = m;
+    }
+
     on(SCORED, onScored);
     on(RUNESTONE_MOVE, onMove);
     on(GAME_OVER, onGG);
+    on(SHOW_MESSAGE, onMessage);
 
     return {
         update,
