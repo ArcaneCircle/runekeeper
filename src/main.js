@@ -1,4 +1,4 @@
-import "webxdc-scores";
+import "@webxdc/highscores";
 import * as bus from "./bus";
 import EnemySpawner from "./enemy-spawner";
 import { add } from "./engine";
@@ -41,4 +41,4 @@ function initialize() {
   Audio().init();
 }
 
-window.highscores.init("Runekeeper").then(initialize);
+window.highscores.init().then(initialize);
